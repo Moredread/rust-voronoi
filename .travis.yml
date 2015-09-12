@@ -1,0 +1,25 @@
+language: rust
+
+rust:
+    - nightly
+    - stable
+
+os:
+    - linux
+    - osx
+
+#env:
+#    global:
+#        - secure:
+
+sudo: false
+
+script:
+    - rustc --version
+    - cargo --version
+    - cargo build --verbose
+    - cargo test --verbose
+    - cargo bench --verbose
+    - cargo doc --verbose
+
+#    - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh

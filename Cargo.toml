@@ -1,0 +1,4 @@
+[package]
+name = "voronoi"
+version = "0.1.0"
+authors = ["Andre-Patrick Bubel <code@andre-bubel.de>"]
