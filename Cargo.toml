@@ -2,3 +2,10 @@
 name = "voronoi"
 version = "0.1.0"
 authors = ["Andre-Patrick Bubel <code@andre-bubel.de>"]
+
+[dependencies]
+nalgebra = "0.2"
+mpfr = { path = "C:\\Users\\addy\\Documents\\code\\rust-mpfr"}
+
+[dev-dependencies]
+quickcheck = "0.2"
