@@ -5,7 +5,7 @@ authors = ["Andre-Patrick Bubel <code@andre-bubel.de>"]
 
 [dependencies]
 nalgebra = "0.2"
-mpfr = { path = "C:\\Users\\addy\\Documents\\code\\rust-mpfr"}
+rust-mpfr = { git = "https://github.com/Moredread/rust-mpfr", branch = "feature/to_string" }
 
 [dev-dependencies]
 quickcheck = "0.2"
