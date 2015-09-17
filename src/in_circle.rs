@@ -91,6 +91,41 @@ impl<N> Det<N> for Mat3<N>
     }
 }
 
+impl<N> Det<N> for Mat4<N>
+    where N: Clone +
+             Add<N, Output = N> +
+             Sub<N, Output = N> +
+             Mul<N, Output = N>
+{
+    fn det(&self) -> N {
+        let m1 = Mat3::new(
+                self.m22.clone(), self.m23.clone(), self.m24.clone(),
+                self.m32.clone(), self.m33.clone(), self.m34.clone(),
+                self.m42.clone(), self.m43.clone(), self.m44.clone(),
+            );
+
+        let m2 = Mat3::new(
+                self.m21.clone(), self.m23.clone(), self.m24.clone(),
+                self.m31.clone(), self.m33.clone(), self.m34.clone(),
+                self.m41.clone(), self.m43.clone(), self.m44.clone(),
+            );
+
+        let m3 = Mat3::new(
+                self.m21.clone(), self.m22.clone(), self.m24.clone(),
+                self.m31.clone(), self.m32.clone(), self.m34.clone(),
+                self.m41.clone(), self.m42.clone(), self.m44.clone(),
+            );
+
+        let m4 = Mat3::new(
+                self.m21.clone(), self.m22.clone(), self.m23.clone(),
+                self.m31.clone(), self.m32.clone(), self.m33.clone(),
+                self.m41.clone(), self.m42.clone(), self.m43.clone(),
+            );
+
+        self.m11.clone() * m1.det() - self.m12.clone() * m2.det() + self.m13.clone() * m3.det() - self.m14.clone() * m4.det()
+    }
+}
+
 impl InCircle<Point2D> for Triangle<Point2D> {
     fn in_circle_test(&self, point: &Point2D) -> InCircleLocation {
         let mat = Mat4::new(self.p1.x, self.p1.y, self.p1.x*self.p1.x + self.p1.y*self.p1.y, 1f64,
@@ -108,7 +143,7 @@ mod tests {
     use mpfr::mpfr::Mpfr;
 
     #[test]
-    fn it_works() {
+    fn mat3_det_mpfr() {
         let p1 = Mpfr::from(1.0);
         let p2 = Mpfr::from(2.0);
         let p3 = Mpfr::from(3.0);
@@ -117,5 +152,20 @@ mod tests {
                                   p3.clone(), p1.clone(), p2.clone(),);
         let d: Mpfr = v.det();
         assert_eq!(d.to_string(), Mpfr::from(-18.0).to_string());
+    }
+
+    #[test]
+    fn mat4_det_mpfr() {
+        let p1 = Mpfr::from(1.0);
+        let p2 = Mpfr::from(2.0);
+        let p3 = Mpfr::from(3.0);
+        let p4 = Mpfr::from(4.0);
+        let v = Mat4::<Mpfr>::new(p1.clone(), p2.clone(), p3.clone(), p4.clone(),
+                                  p2.clone(), p3.clone(), p4.clone(), p1.clone(),
+                                  p3.clone(), p4.clone(), p1.clone(), p2.clone(),
+                                  p4.clone(), p1.clone(), p2.clone(), p3.clone(),
+                                 );
+        let d: Mpfr = v.det();
+        assert_eq!(d.to_string(), Mpfr::from(160.0).to_string());
     }
 }
