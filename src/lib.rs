@@ -7,3 +7,4 @@ extern crate quickcheck;
 pub use in_circle::*;
 
 pub mod in_circle;
+mod mat;
