@@ -1,5 +1,4 @@
 extern crate nalgebra as na;
-extern crate rust_mpfr as mpfr;
 extern crate libc;
 
 #[cfg(test)]

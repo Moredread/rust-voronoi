@@ -1,4 +1,3 @@
-use mpfr::mpfr::Mpfr;
 use std::ops::{Add, Sub, Mul};
 use libc::{c_char, c_int, c_ulong, c_long, c_double, c_void};
 use std::ffi::*;
