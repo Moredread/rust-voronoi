@@ -6,8 +6,7 @@ use std::slice;
 
 use std::sync::{Once, ONCE_INIT};
 
-static START: Once = ONCE_INIT;
-
+static EXACTINIT: Once = ONCE_INIT;
 
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq)]
@@ -32,7 +31,7 @@ extern "C" {
 }
 
 fn init_predicates() {
-    START.call_once(|| {
+    EXACTINIT.call_once(|| {
         unsafe { exactinit() };
     });
 }
