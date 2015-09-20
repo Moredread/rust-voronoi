@@ -3,7 +3,6 @@ use libc::{c_char, c_int, c_ulong, c_long, c_double, c_void};
 use std::ffi::*;
 use std::cmp::{Ordering};
 use std::slice;
-
 use std::sync::{Once, ONCE_INIT};
 
 static EXACTINIT: Once = ONCE_INIT;
