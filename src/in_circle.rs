@@ -102,6 +102,8 @@ impl InCircleTestable<Point3D> for Tetrahedron<Point3D> {
 mod tests {
     use super::*;
 
+    use std::f64;
+
     #[test]
     fn in_circle_2d() {
         let p1 = Point2D::new(0.0, 0.0);
@@ -116,6 +118,84 @@ mod tests {
         assert_eq!(t.in_circle_test(&d_inside), Some(InCircleLocation::Inside));
         assert_eq!(t.in_circle_test(&d_outside), Some(InCircleLocation::Outside));
         assert_eq!(t.in_circle_test(&d_on), Some(InCircleLocation::On));
+    }
+
+    #[test]
+    fn in_circle_2d_nan_in_test_point() {
+        let p1 = Point2D::new(0.0, 0.0);
+        let p2 = Point2D::new(0.0, 1.0);
+        let p3 = Point2D::new(1.0, 1.0);
+
+        let d = Point2D::new(1.0, f64::NAN);
+
+        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+
+        assert_eq!(t.in_circle_test(&d), None);
+    }
+
+    #[test]
+    fn in_circle_2d_nan_in_triangle() {
+        let p1 = Point2D::new(0.0, 0.0);
+        let p2 = Point2D::new(0.0, f64::NAN);
+        let p3 = Point2D::new(1.0, 1.0);
+
+        let d = Point2D::new(1.0, 1.0);
+
+        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+
+        assert_eq!(t.in_circle_test(&d), None);
+    }
+
+    #[test]
+    fn in_circle_2d_infinity_in_test_point() {
+        let p1 = Point2D::new(0.0, 0.0);
+        let p2 = Point2D::new(0.0, 1.0);
+        let p3 = Point2D::new(1.0, 1.0);
+
+        let d = Point2D::new(1.0, f64::INFINITY);
+
+        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+
+        assert_eq!(t.in_circle_test(&d), None);
+    }
+
+    #[test]
+    fn in_circle_2d_infinity_in_triangle() {
+        let p1 = Point2D::new(0.0, 0.0);
+        let p2 = Point2D::new(0.0, f64::INFINITY);
+        let p3 = Point2D::new(1.0, 1.0);
+
+        let d = Point2D::new(1.0, 1.0);
+
+        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+
+        assert_eq!(t.in_circle_test(&d), None);
+    }
+
+    #[test]
+    fn in_circle_2d_neg_infinity_in_test_point() {
+        let p1 = Point2D::new(0.0, 0.0);
+        let p2 = Point2D::new(0.0, 1.0);
+        let p3 = Point2D::new(1.0, 1.0);
+
+        let d = Point2D::new(1.0, f64::NEG_INFINITY);
+
+        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+
+        assert_eq!(t.in_circle_test(&d), None);
+    }
+
+    #[test]
+    fn in_circle_2d_neg_infinity_in_triangle() {
+        let p1 = Point2D::new(0.0, 0.0);
+        let p2 = Point2D::new(0.0, f64::NEG_INFINITY);
+        let p3 = Point2D::new(1.0, 1.0);
+
+        let d = Point2D::new(1.0, 1.0);
+
+        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+
+        assert_eq!(t.in_circle_test(&d), None);
     }
 
     #[test]
