@@ -54,7 +54,7 @@ pub enum InCircleLocation {
     On
 }
 
-pub trait InCircle<P> {
+pub trait InCircleTestable<P> {
     fn in_circle_test(&self, point: &P) -> Option<InCircleLocation>;
 }
 
@@ -71,7 +71,7 @@ pub struct Tetrahedron<P> {
     p4: P,
 }
 
-impl InCircle<Point2D> for Triangle<Point2D> {
+impl InCircleTestable<Point2D> for Triangle<Point2D> {
     fn in_circle_test(&self, point: &Point2D) -> Option<InCircleLocation> {
         init_predicates();
 
@@ -86,7 +86,7 @@ impl InCircle<Point2D> for Triangle<Point2D> {
     }
 }
 
-impl InCircle<Point3D> for Tetrahedron<Point3D> {
+impl InCircleTestable<Point3D> for Tetrahedron<Point3D> {
     fn in_circle_test(&self, point: &Point3D) -> Option<InCircleLocation> {
         init_predicates();
 
