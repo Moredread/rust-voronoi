@@ -14,6 +14,12 @@ pub struct Point2D {
     y: c_double,
 }
 
+impl Point2D {
+    fn new(x: c_double, y: c_double) -> Point2D {
+        Point2D { x: x, y: y }
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq)]
 pub struct Point3D {
@@ -75,14 +81,16 @@ impl InCircle<Point2D> for Triangle<Point2D> {
 mod tests {
     use super::*;
 
+    use quickcheck::{TestResult, quickcheck};
+
     #[test]
     fn in_circle_2d() {
-        let p1 = Point2D { x: 0.0, y: 0.0 };
-        let p2 = Point2D { x: 0.0, y: 1.0 };
-        let p3 = Point2D { x: 1.0, y: 1.0 };
-        let d_inside  = Point2D { x: 0.5, y: 0.5 };
-        let d_outside  = Point2D { x: 2.0, y: 0.0 };
-        let d_on  = Point2D { x: 1.0, y: 1.0 };
+        let p1 = Point2D::new(0.0, 0.0);
+        let p2 = Point2D::new(0.0, 1.0);
+        let p3 = Point2D::new(1.0, 1.0);
+        let d_inside = Point2D::new(0.5, 0.5);
+        let d_outside = Point2D::new(2.0, 0.0);
+        let d_on = Point2D::new(1.0, 1.0);
 
         let t = Triangle { p1: p1, p2: p2, p3: p3 };
 
@@ -90,4 +98,5 @@ mod tests {
         assert_eq!(t.in_circle_test(&d_outside), Some(InCircleLocation::Outside));
         assert_eq!(t.in_circle_test(&d_on), Some(InCircleLocation::On));
     }
+
 }
