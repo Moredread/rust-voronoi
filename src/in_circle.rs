@@ -28,6 +28,12 @@ pub struct Point3D {
     z: c_double,
 }
 
+impl Point3D {
+    fn new(x: c_double, y: c_double, z: c_double) -> Point3D {
+        Point3D { x: x, y: y, z: z }
+    }
+}
+
 #[link(name = "predicates")]
 extern "C" {
     fn exactinit() -> c_void;
@@ -58,13 +64,11 @@ pub struct Triangle<P> {
     p3: P,
 }
 
-fn det_to_in_circle_location(det: f64) -> Option<InCircleLocation> {
-    match 0.0.partial_cmp(&det) {
-        Some(Ordering::Greater) => { Some(InCircleLocation::Inside) }
-        Some(Ordering::Less) => { Some(InCircleLocation::Outside) }
-        Some(Ordering::Equal) => { Some(InCircleLocation::On) }
-        None => { None }
-    }
+pub struct Tetrahedron<P> {
+    p1: P,
+    p2: P,
+    p3: P,
+    p4: P,
 }
 
 impl InCircle<Point2D> for Triangle<Point2D> {
@@ -73,7 +77,27 @@ impl InCircle<Point2D> for Triangle<Point2D> {
 
         let incircle_det = unsafe { incircle(&self.p1, &self.p2, &self.p3, point) };
 
-        det_to_in_circle_location(incircle_det)
+        match 0.0.partial_cmp(&incircle_det) {
+            Some(Ordering::Greater) => { Some(InCircleLocation::Inside) }
+            Some(Ordering::Less) => { Some(InCircleLocation::Outside) }
+            Some(Ordering::Equal) => { Some(InCircleLocation::On) }
+            None => { None }
+        }
+    }
+}
+
+impl InCircle<Point3D> for Tetrahedron<Point3D> {
+    fn in_circle_test(&self, point: &Point3D) -> Option<InCircleLocation> {
+        init_predicates();
+
+        let incircle_det = unsafe { insphere(&self.p1, &self.p2, &self.p3, &self.p4, point) };
+
+        match 0.0.partial_cmp(&incircle_det) {
+            Some(Ordering::Less) => { Some(InCircleLocation::Inside) }
+            Some(Ordering::Greater) => { Some(InCircleLocation::Outside) }
+            Some(Ordering::Equal) => { Some(InCircleLocation::On) }
+            None => { None }
+        }
     }
 }
 
@@ -82,6 +106,7 @@ mod tests {
     use super::*;
 
     use quickcheck::{TestResult, quickcheck};
+    use std::f64::consts::{SQRT_2};
 
     #[test]
     fn in_circle_2d() {
@@ -93,6 +118,23 @@ mod tests {
         let d_on = Point2D::new(1.0, 1.0);
 
         let t = Triangle { p1: p1, p2: p2, p3: p3 };
+
+        assert_eq!(t.in_circle_test(&d_inside), Some(InCircleLocation::Inside));
+        assert_eq!(t.in_circle_test(&d_outside), Some(InCircleLocation::Outside));
+        assert_eq!(t.in_circle_test(&d_on), Some(InCircleLocation::On));
+    }
+
+    #[test]
+    fn in_circle_3d() {
+        let p1 = Point3D::new(-1.0,  1.0, -1.0);
+        let p2 = Point3D::new( 1.0,  1.0, -1.0);
+        let p3 = Point3D::new( 0.0, -1.0, -1.0);
+        let p4 = Point3D::new( 0.0,  0.0,  1.0);
+        let d_inside = Point3D::new(0.0, 0.0, 0.0);
+        let d_outside = Point3D::new(10.0, 10.0, 10.0);
+        let d_on = Point3D::new(0.0, 0.0, 1.0);
+
+        let t = Tetrahedron { p1: p1, p2: p2, p3: p3, p4: p4 };
 
         assert_eq!(t.in_circle_test(&d_inside), Some(InCircleLocation::Inside));
         assert_eq!(t.in_circle_test(&d_outside), Some(InCircleLocation::Outside));
