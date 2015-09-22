@@ -72,7 +72,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn mat3_det_mpfr() {
+    fn in_circle_2d() {
         let p1 = Point2D { x: 0.0, y: 0.0 };
         let p2 = Point2D { x: 0.0, y: 1.0 };
         let p3 = Point2D { x: 1.0, y: 1.0 };
