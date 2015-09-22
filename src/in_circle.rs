@@ -1,8 +1,5 @@
-use std::ops::{Add, Sub, Mul};
-use libc::{c_char, c_int, c_ulong, c_long, c_double, c_void};
-use std::ffi::*;
+use libc::{c_double, c_void};
 use std::cmp::{Ordering};
-use std::slice;
 use std::sync::{Once, ONCE_INIT};
 
 static EXACTINIT: Once = ONCE_INIT;
@@ -15,7 +12,7 @@ pub struct Point2D {
 }
 
 impl Point2D {
-    fn new(x: c_double, y: c_double) -> Point2D {
+    pub fn new(x: c_double, y: c_double) -> Point2D {
         Point2D { x: x, y: y }
     }
 }
@@ -29,7 +26,7 @@ pub struct Point3D {
 }
 
 impl Point3D {
-    fn new(x: c_double, y: c_double, z: c_double) -> Point3D {
+    pub fn new(x: c_double, y: c_double, z: c_double) -> Point3D {
         Point3D { x: x, y: y, z: z }
     }
 }
@@ -104,9 +101,6 @@ impl InCircleTestable<Point3D> for Tetrahedron<Point3D> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    use quickcheck::{TestResult, quickcheck};
-    use std::f64::consts::{SQRT_2};
 
     #[test]
     fn in_circle_2d() {
