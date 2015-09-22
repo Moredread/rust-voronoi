@@ -52,18 +52,22 @@ pub struct Triangle<P> {
     p3: P,
 }
 
+fn det_to_in_circle_location(det: f64) -> Option<InCircleLocation> {
+    match 0.0.partial_cmp(&det) {
+        Some(Ordering::Greater) => { Some(InCircleLocation::Inside) }
+        Some(Ordering::Less) => { Some(InCircleLocation::Outside) }
+        Some(Ordering::Equal) => { Some(InCircleLocation::On) }
+        None => { None }
+    }
+}
+
 impl InCircle<Point2D> for Triangle<Point2D> {
     fn in_circle_test(&self, point: &Point2D) -> Option<InCircleLocation> {
         init_predicates();
 
         let incircle_det = unsafe { incircle(&self.p1, &self.p2, &self.p3, point) };
 
-        match 0.0.partial_cmp(&incircle_det) {
-            Some(Ordering::Greater) => { Some(InCircleLocation::Inside) }
-            Some(Ordering::Less) => { Some(InCircleLocation::Outside) }
-            Some(Ordering::Equal) => { Some(InCircleLocation::On) }
-            None => { None }
-        }
+        det_to_in_circle_location(incircle_det)
     }
 }
 
