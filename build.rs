@@ -1,5 +1,10 @@
 extern crate gcc;
 
+use std::env;
+
 fn main() {
-    gcc::compile_library("libpredicates.a", &["src/predicates.c"]);
+    gcc::Config::new()
+                .file("src/predicates.c")
+				.opt_level(2)
+                .compile("libpredicates.a");
 }
