@@ -34,8 +34,10 @@ impl Point3D {
 #[link(name = "predicates")]
 extern "C" {
     fn exactinit() -> c_void;
-    fn insphere(pa: *const Point3D, pb: *const Point3D, pc: *const Point3D, pd: *const Point3D, pe: *const Point3D) -> c_double;
+    fn orient2d(pa: *const Point2D, pb: *const Point2D, pc: *const Point2D) -> c_double;
     fn incircle(pa: *const Point2D, pb: *const Point2D, pc: *const Point2D, pd: *const Point2D) -> c_double;
+    fn orient3d(pa: *const Point3D, pb: *const Point3D, pc: *const Point3D, pd: *const Point3D) -> c_double;
+    fn insphere(pa: *const Point3D, pb: *const Point3D, pc: *const Point3D, pd: *const Point3D, pe: *const Point3D) -> c_double;
 }
 
 fn init_predicates() {
@@ -51,8 +53,27 @@ pub enum InCircleLocation {
     On
 }
 
+#[derive(Debug, Eq, PartialEq)]
+pub enum Orientation {
+    Positive,
+    Negative
+}
+
+impl Orientation {
+    pub fn to_f64_multiplier(&self) -> f64 {
+        match *self {
+            Orientation::Positive => {  1.0 },
+            Orientation::Negative => { -1.0 }
+        }
+    }
+}
+
 pub trait InCircleTestable<P> {
     fn in_circle_test(&self, point: &P) -> Option<InCircleLocation>;
+}
+
+pub trait Orientable {
+    fn orientation(&self) -> Option<Orientation>;
 }
 
 pub struct Triangle<P> {
@@ -68,18 +89,55 @@ pub struct Tetrahedron<P> {
     p4: P,
 }
 
+fn det_to_in_circle_location(det: f64) -> Option<InCircleLocation> {
+    match 0.0.partial_cmp(&det) {
+        Some(Ordering::Greater) => { Some(InCircleLocation::Inside) }
+        Some(Ordering::Less) => { Some(InCircleLocation::Outside) }
+        Some(Ordering::Equal) => { Some(InCircleLocation::On) }
+        None => { None }
+    }
+}
+
+fn det_to_orientation(det: f64) -> Option<Orientation> {
+    match 0.0.partial_cmp(&det) {
+        Some(Ordering::Greater) => { Some(Orientation::Positive) }
+        Some(Ordering::Less) => { Some(Orientation::Negative) }
+        _ => { None }
+    }
+}
+
+impl Orientable for Triangle<Point2D> {
+    fn orientation(&self) -> Option<Orientation> {
+        init_predicates();
+
+        let orientation_det = unsafe { orient2d(&self.p1, &self.p2, &self.p3) };
+
+        det_to_orientation(orientation_det)
+    }
+}
+
 impl InCircleTestable<Point2D> for Triangle<Point2D> {
     fn in_circle_test(&self, point: &Point2D) -> Option<InCircleLocation> {
         init_predicates();
 
+        let orienation_multiplier: f64 = match self.orientation() {
+            Some(p) => { p.to_f64_multiplier() },
+            None => { return None; }
+        };
+
         let incircle_det = unsafe { incircle(&self.p1, &self.p2, &self.p3, point) };
 
-        match 0.0.partial_cmp(&incircle_det) {
-            Some(Ordering::Greater) => { Some(InCircleLocation::Inside) }
-            Some(Ordering::Less) => { Some(InCircleLocation::Outside) }
-            Some(Ordering::Equal) => { Some(InCircleLocation::On) }
-            None => { None }
-        }
+        det_to_in_circle_location(orienation_multiplier * incircle_det)
+    }
+}
+
+impl Orientable for Tetrahedron<Point3D> {
+    fn orientation(&self) -> Option<Orientation> {
+        init_predicates();
+
+        let orientation_det = unsafe { orient3d(&self.p1, &self.p2, &self.p3, &self.p4) };
+
+        det_to_orientation(orientation_det)
     }
 }
 
@@ -87,14 +145,14 @@ impl InCircleTestable<Point3D> for Tetrahedron<Point3D> {
     fn in_circle_test(&self, point: &Point3D) -> Option<InCircleLocation> {
         init_predicates();
 
+        let orienation_multiplier: f64 = match self.orientation() {
+            Some(p) => { p.to_f64_multiplier() },
+            None => { return None; }
+        };
+
         let incircle_det = unsafe { insphere(&self.p1, &self.p2, &self.p3, &self.p4, point) };
 
-        match 0.0.partial_cmp(&incircle_det) {
-            Some(Ordering::Less) => { Some(InCircleLocation::Inside) }
-            Some(Ordering::Greater) => { Some(InCircleLocation::Outside) }
-            Some(Ordering::Equal) => { Some(InCircleLocation::On) }
-            None => { None }
-        }
+        det_to_in_circle_location(orienation_multiplier * incircle_det)
     }
 }
 
