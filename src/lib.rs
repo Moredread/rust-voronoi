@@ -1,4 +1,3 @@
-extern crate nalgebra as na;
 extern crate libc;
 
 #[cfg(test)]

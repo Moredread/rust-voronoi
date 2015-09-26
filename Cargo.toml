@@ -5,7 +5,6 @@ authors = ["André-Patrick Bubel <code@andre-bubel.de>"]
 build = "build.rs"
 
 [dependencies]
-nalgebra = "0.2"
 libc = "*"
 
 [dev-dependencies]
