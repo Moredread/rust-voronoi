@@ -2330,7 +2330,7 @@ REAL *pd;
   adxbdy = adx * bdy;
   bdxady = bdx * ady;
 
-  det = adz * (bdxcdy - cdxbdy) 
+  det = adz * (bdxcdy - cdxbdy)
       + bdz * (cdxady - adxcdy)
       + cdz * (adxbdy - bdxady);
 
