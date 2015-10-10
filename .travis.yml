@@ -25,15 +25,13 @@ before_script:
 script:
     - rustc --version
     - cargo --version
-    - |
-      travis-cargo build &&
-      travis-cargo test &&
-      travis-cargo --only nightly bench &&
-      travis-cargo --only stable doc
+    - travis-cargo build
+    - travis-cargo test
+    - travis-cargo --only nightly bench
+    - travis-cargo --only stable doc
 
 after_success:
-    - |
-      [ ${TRAVIS_OS_NAME} != "osx" ] && travis-cargo coveralls --no-sudo
+    - if [ ${TRAVIS_OS_NAME} != "osx" ]; then travis-cargo coveralls --no-sudo; fi
 
 env:
   global:
