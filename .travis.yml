@@ -16,10 +16,6 @@ addons:
       - libelf-dev
       - libdw-dev
 
-#env:
-#    global:
-#        - secure:
-
 sudo: false
 
 before_script:
@@ -43,5 +39,3 @@ env:
   global:
     # override the default `--features unstable` used for the nightly branch
     - TRAVIS_CARGO_NIGHTLY_FEATURE=""
-
-#    - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
