@@ -30,10 +30,11 @@ before_script:
 script:
     - rustc --version
     - cargo --version
-    - cargo build --verbose
-    - cargo test --verbose
-    - cargo bench --verbose
-    - cargo doc --verbose
+    - |
+      travis-cargo build &&
+      travis-cargo test &&
+      travis-cargo --only nightly bench &&
+      travis-cargo --only stable doc
 
 after_success:
     - travis-cargo coveralls --no-sudo
