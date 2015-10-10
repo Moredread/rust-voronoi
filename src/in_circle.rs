@@ -82,11 +82,32 @@ pub struct Triangle<P> {
     p3: P,
 }
 
+impl<P> Triangle<P> {
+    pub fn new(p1: P, p2: P, p3: P) -> Triangle<P> {
+        Triangle {
+            p1: p1,
+            p2: p2,
+            p3: p3,
+        }
+    }
+}
+
 pub struct Tetrahedron<P> {
     p1: P,
     p2: P,
     p3: P,
     p4: P,
+}
+
+impl<P> Tetrahedron<P> {
+    pub fn new(p1: P, p2: P, p3: P, p4: P) -> Tetrahedron<P> {
+        Tetrahedron {
+            p1: p1,
+            p2: p2,
+            p3: p3,
+            p4: p4,
+        }
+    }
 }
 
 fn det_to_in_circle_location(det: f64) -> Option<InCircleLocation> {
@@ -171,7 +192,7 @@ mod tests {
         let d_outside = Point2D::new(2.0, 0.0);
         let d_on = Point2D::new(1.0, 1.0);
 
-        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+        let t = Triangle::new(p1, p2, p3);
 
         assert_eq!(t.in_circle_test(&d_inside), Some(InCircleLocation::Inside));
         assert_eq!(t.in_circle_test(&d_outside), Some(InCircleLocation::Outside));
@@ -186,7 +207,7 @@ mod tests {
 
         let d = Point2D::new(1.0, f64::NAN);
 
-        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+        let t = Triangle::new(p1, p2, p3);
 
         assert_eq!(t.in_circle_test(&d), None);
     }
@@ -199,7 +220,7 @@ mod tests {
 
         let d = Point2D::new(1.0, 1.0);
 
-        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+        let t = Triangle::new(p1, p2, p3);
 
         assert_eq!(t.in_circle_test(&d), None);
     }
@@ -212,7 +233,7 @@ mod tests {
 
         let d = Point2D::new(1.0, f64::INFINITY);
 
-        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+        let t = Triangle::new(p1, p2, p3);
 
         assert_eq!(t.in_circle_test(&d), None);
     }
@@ -225,7 +246,7 @@ mod tests {
 
         let d = Point2D::new(1.0, 1.0);
 
-        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+        let t = Triangle::new(p1, p2, p3);
 
         assert_eq!(t.in_circle_test(&d), None);
     }
@@ -238,7 +259,7 @@ mod tests {
 
         let d = Point2D::new(1.0, f64::NEG_INFINITY);
 
-        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+        let t = Triangle::new(p1, p2, p3);
 
         assert_eq!(t.in_circle_test(&d), None);
     }
@@ -251,7 +272,7 @@ mod tests {
 
         let d = Point2D::new(1.0, 1.0);
 
-        let t = Triangle { p1: p1, p2: p2, p3: p3 };
+        let t = Triangle::new(p1, p2, p3);
 
         assert_eq!(t.in_circle_test(&d), None);
     }
@@ -266,7 +287,7 @@ mod tests {
         let d_outside = Point3D::new(10.0, 10.0, 10.0);
         let d_on = Point3D::new(0.0, 0.0, 1.0);
 
-        let t = Tetrahedron { p1: p1, p2: p2, p3: p3, p4: p4 };
+        let t = Tetrahedron::new(p1, p2, p3, p4);
 
         assert_eq!(t.in_circle_test(&d_inside), Some(InCircleLocation::Inside));
         assert_eq!(t.in_circle_test(&d_outside), Some(InCircleLocation::Outside));
