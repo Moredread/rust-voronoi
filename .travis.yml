@@ -15,6 +15,11 @@ os:
 
 sudo: false
 
+before_script:
+- |
+    pip install travis-cargo --user &&
+    export PATH=$HOME/.local/bin:$PATH
+
 script:
     - rustc --version
     - cargo --version
@@ -22,5 +27,9 @@ script:
     - cargo test --verbose
     - cargo bench --verbose
     - cargo doc --verbose
+
+after_success:
+    - travis-cargo coveralls --no-sudo
+
 
 #    - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
