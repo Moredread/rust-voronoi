@@ -23,9 +23,8 @@ addons:
 sudo: false
 
 before_script:
-- |
-    pip install 'travis-cargo<0.2' --user
-    export PATH=$HOME/.local/bin:$PATH
+  - pip install 'travis-cargo<0.2' --user
+  - export PATH=$HOME/.local/bin:/Users/travis/Library/Python/2.7/bin:$PATH
 
 script:
     - rustc --version
@@ -37,7 +36,8 @@ script:
       travis-cargo --only stable doc
 
 after_success:
-    - travis-cargo coveralls --no-sudo
+    - |
+      [ ${TRAVIS_OS_NAME} != "osx" ] && travis-cargo coveralls --no-sudo
 
 env:
   global:
