@@ -226,8 +226,13 @@ mod tests {
     #[test]
     fn in_circle_2d_tetrahedron_constructed_from_sphere() {
         const DOMAIN: usize = 100;
-        fn in_circle_2d_tetrahedron_constructed_from_sphere(center: (f64, f64, f64), radius: f64, angle_inputs: ((f64, f64), (f64, f64), (f64, f64), (f64, f64))) -> TestResult {
-            if radius <= 0.0 { return TestResult::discard()};
+        fn in_circle_2d_tetrahedron_constructed_from_sphere(
+            center: (f64, f64, f64), radius: f64, test_point_radius: f64,
+            angle_inputs: ((f64, f64), (f64, f64), (f64, f64), (f64, f64), (f64, f64)),
+        ) -> TestResult {
+            if radius <= 0.0 { return TestResult::discard() };
+            if test_point_radius <= 0.0 { return TestResult::discard() };
+            if radius == test_point_radius { return TestResult::discard() };
 
             /// Generate a point on the sphere given by the "spherical" input coordinates.
             /// angle_inputs should be on the interval [-DOMAIN, DOMAIN], as converting to real
@@ -256,15 +261,22 @@ mod tests {
             let p2 = to_pnt(center, radius, angle_inputs.1);
             let p3 = to_pnt(center, radius, angle_inputs.2);
             let p4 = to_pnt(center, radius, angle_inputs.3);
-            let p_center = Point3D::new(center.0, center.1, center.2);
+            let test_point = to_pnt(center, test_point_radius, angle_inputs.4);
 
             let tetrahedron = Tetrahedron::new(p1, p2, p3, p4);
 
-            TestResult::from_bool(tetrahedron.in_circle_test(&p_center) == Some(InCircleLocation::Inside))
+            let expected =
+                if test_point_radius < radius {
+                    Some(InCircleLocation::Inside) }
+                else {
+                    Some(InCircleLocation::Outside)
+                };
+            TestResult::from_bool(tetrahedron.in_circle_test(&test_point) == expected)
         }
-        QuickCheck::new().gen(StdGen::new(rand::thread_rng(), DOMAIN)).quickcheck(
-            in_circle_2d_tetrahedron_constructed_from_sphere as fn(center: (f64, f64, f64), radius: f64, angle_inputs: ((f64, f64), (f64, f64), (f64, f64), (f64, f64))) -> TestResult
-        )
+        QuickCheck::new().gen(StdGen::new(rand::thread_rng(), DOMAIN)).quickcheck(in_circle_2d_tetrahedron_constructed_from_sphere as fn(
+            center: (f64, f64, f64), radius: f64, test_point_radius: f64,
+            angle_inputs: ((f64, f64), (f64, f64), (f64, f64), (f64, f64), (f64, f64)),
+        ) -> TestResult)
     }
 
     #[test]
