@@ -5,7 +5,7 @@ use std::sync::{Once, ONCE_INIT};
 static EXACTINIT: Once = ONCE_INIT;
 
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point2D {
     x: c_double,
     y: c_double,
@@ -18,7 +18,7 @@ impl Point2D {
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point3D {
     x: c_double,
     y: c_double,
@@ -76,6 +76,7 @@ pub trait Orientable {
     fn orientation(&self) -> Option<Orientation>;
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Triangle<P> {
     p1: P,
     p2: P,
@@ -92,6 +93,7 @@ impl<P> Triangle<P> {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Tetrahedron<P> {
     p1: P,
     p2: P,
@@ -361,6 +363,32 @@ mod tests {
         let d = Point2D::new(1.0, 1.0);
 
         let t = Triangle::new(p1, p2, p3);
+
+        assert_eq!(t.in_circle_test(&d), None);
+    }
+
+    #[test]
+    fn in_circle_2d_doubled_point_in_triangle() {
+        let p1 = Point2D::new(0.0, 0.0);
+        let p2 = Point2D::new(0.0, 1.0);
+
+        let d = Point2D::new(0.0, 1.0);
+
+        let t1 = Triangle::new(p1, p2, p2);
+        let t2 = Triangle::new(p2, p1, p2);
+        let t3 = Triangle::new(p2, p2, p1);
+
+        assert_eq!(t1.in_circle_test(&d), None);
+        assert_eq!(t2.in_circle_test(&d), None);
+        assert_eq!(t3.in_circle_test(&d), None);
+    }
+
+    #[test]
+    fn in_circle_2d_single_point_in_triangle() {
+        let p1 = Point2D::new(0.0, 0.0);
+        let d = Point2D::new(0.0, 1.0);
+
+        let t = Triangle::new(p1, p1, p1);
 
         assert_eq!(t.in_circle_test(&d), None);
     }
