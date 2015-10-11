@@ -204,8 +204,10 @@ mod tests {
 
     #[test]
     fn in_circle_2d_triangle_constructed_from_circle() {
-        fn in_circle_2d_triangle_constructed_from_circle(center: (f64, f64), radius: f64, angles: (f64, f64, f64)) -> TestResult {
+        fn in_circle_2d_triangle_constructed_from_circle(center: (f64, f64), radius: f64, test_point_radius: f64, angles: (f64, f64, f64, f64)) -> TestResult {
             if radius <= 0.0 { return TestResult::discard()};
+            if test_point_radius <= 0.0 { return TestResult::discard()};
+
             fn to_pnt(center: (f64, f64), radius: f64, angle: f64) -> Point2D {
                 let x = center.0 + radius * angle.cos();
                 let y = center.1 + radius * angle.sin();
@@ -214,13 +216,19 @@ mod tests {
             let p1 = to_pnt(center, radius, angles.0);
             let p2 = to_pnt(center, radius, angles.1);
             let p3 = to_pnt(center, radius, angles.2);
-            let p_center = Point2D::new(center.0, center.1);
+            let test_point = to_pnt(center, test_point_radius, angles.3);
 
             let triangle = Triangle::new(p1, p2, p3);
 
-            TestResult::from_bool(triangle.in_circle_test(&p_center) == Some(InCircleLocation::Inside))
+            let expected =
+                if test_point_radius < radius {
+                    Some(InCircleLocation::Inside) }
+                else {
+                    Some(InCircleLocation::Outside)
+                };
+            TestResult::from_bool(triangle.in_circle_test(&test_point) == expected)
         }
-        quickcheck(in_circle_2d_triangle_constructed_from_circle as fn(center: (f64, f64), radius: f64, angles: (f64, f64, f64)) -> TestResult)
+        quickcheck(in_circle_2d_triangle_constructed_from_circle as fn(center: (f64, f64), radius: f64, test_point_radius: f64, angles: (f64, f64, f64, f64)) -> TestResult)
     }
 
     #[test]
