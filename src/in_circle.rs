@@ -224,9 +224,9 @@ mod tests {
     }
 
     #[test]
-    fn in_circle_2d_polyhedron_constructed_from_sphere() {
+    fn in_circle_2d_tetrahedron_constructed_from_sphere() {
         const DOMAIN: usize = 100;
-        fn in_circle_2d_polyhedron_constructed_from_sphere(center: (f64, f64, f64), radius: f64, angle_inputs: ((f64, f64), (f64, f64), (f64, f64), (f64, f64))) -> TestResult {
+        fn in_circle_2d_tetrahedron_constructed_from_sphere(center: (f64, f64, f64), radius: f64, angle_inputs: ((f64, f64), (f64, f64), (f64, f64), (f64, f64))) -> TestResult {
             if radius <= 0.0 { return TestResult::discard()};
             fn to_pnt(center: (f64, f64, f64), radius: f64, angle_inputs: (f64, f64)) -> Point3D {
                 let domain_f64 = DOMAIN as f64;
@@ -250,7 +250,7 @@ mod tests {
             TestResult::from_bool(tetrahedron.in_circle_test(&p_center) == Some(InCircleLocation::Inside))
         }
         QuickCheck::new().gen(StdGen::new(rand::thread_rng(), DOMAIN)).quickcheck(
-            in_circle_2d_polyhedron_constructed_from_sphere as fn(center: (f64, f64, f64), radius: f64, angle_inputs: ((f64, f64), (f64, f64), (f64, f64), (f64, f64))) -> TestResult
+            in_circle_2d_tetrahedron_constructed_from_sphere as fn(center: (f64, f64, f64), radius: f64, angle_inputs: ((f64, f64), (f64, f64), (f64, f64), (f64, f64))) -> TestResult
         )
     }
 
