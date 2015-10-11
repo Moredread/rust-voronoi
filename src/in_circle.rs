@@ -231,7 +231,7 @@ mod tests {
             fn to_pnt(center: (f64, f64, f64), radius: f64, angle_inputs: (f64, f64)) -> Point3D {
                 let domain_f64 = DOMAIN as f64;
                 let u = (angle_inputs.0 + domain_f64) / (2.0 * domain_f64); // transform to random variable on [0, 1]
-                let v = angle_inputs.1 / domain_f64; // transform to  random variable on [-1, 1]
+                let v = angle_inputs.1 / domain_f64; // transform to random variable on [-1, 1]
                 let theta = 2.0 * consts::PI * u;
                 let phi = v.acos();
                 let x = center.0 + radius * theta.cos() * phi.sin();
