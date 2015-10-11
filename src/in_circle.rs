@@ -369,28 +369,23 @@ mod tests {
 
     #[test]
     fn in_circle_2d_doubled_point_in_triangle() {
-        let p1 = Point2D::new(0.0, 0.0);
-        let p2 = Point2D::new(0.0, 1.0);
+        fn in_circle_2d_doubled_point_in_triangle(p1: (f64, f64), p2: (f64, f64), p_test: (f64, f64)) -> TestResult {
+            let point1 = Point2D::new(p1.0, p1.1);
+            let point2 = Point2D::new(p2.0, p2.1);
+            let test_point = Point2D::new(p_test.0, p_test.1);
 
-        let d = Point2D::new(0.0, 1.0);
+            let t1 = Triangle::new(point1, point2, point2);
+            let t2 = Triangle::new(point1, point2, point2);
+            let t3 = Triangle::new(point1, point2, point2);
 
-        let t1 = Triangle::new(p1, p2, p2);
-        let t2 = Triangle::new(p2, p1, p2);
-        let t3 = Triangle::new(p2, p2, p1);
-
-        assert_eq!(t1.in_circle_test(&d), None);
-        assert_eq!(t2.in_circle_test(&d), None);
-        assert_eq!(t3.in_circle_test(&d), None);
-    }
-
-    #[test]
-    fn in_circle_2d_single_point_in_triangle() {
-        let p1 = Point2D::new(0.0, 0.0);
-        let d = Point2D::new(0.0, 1.0);
-
-        let t = Triangle::new(p1, p1, p1);
-
-        assert_eq!(t.in_circle_test(&d), None);
+            // This should better be seperate tests, but I don't care right now
+            TestResult::from_bool(
+                    t1.in_circle_test(&test_point) == None ||
+                    t2.in_circle_test(&test_point) == None ||
+                    t3.in_circle_test(&test_point) == None
+                )
+        }
+        quickcheck(in_circle_2d_doubled_point_in_triangle as fn(p1: (f64, f64), p2: (f64, f64), p_test: (f64, f64)) -> TestResult)
     }
 
     #[test]
