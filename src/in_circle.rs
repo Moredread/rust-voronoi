@@ -182,7 +182,9 @@ mod tests {
     use super::*;
 
     use std::f64;
-    use quickcheck::{TestResult, quickcheck};
+    use std::f64::consts;
+    use rand;
+    use quickcheck::{TestResult, quickcheck, QuickCheck, StdGen};
 
     #[test]
     fn in_circle_2d() {
@@ -219,6 +221,37 @@ mod tests {
             TestResult::from_bool(triangle.in_circle_test(&p_center) == Some(InCircleLocation::Inside))
         }
         quickcheck(in_circle_2d_triangle_constructed_from_circle as fn(center: (f64, f64), radius: f64, angles: (f64, f64, f64)) -> TestResult)
+    }
+
+    #[test]
+    fn in_circle_2d_polyhedron_constructed_from_sphere() {
+        const DOMAIN: usize = 100;
+        fn in_circle_2d_polyhedron_constructed_from_sphere(center: (f64, f64, f64), radius: f64, angle_inputs: ((f64, f64), (f64, f64), (f64, f64), (f64, f64))) -> TestResult {
+            if radius <= 0.0 { return TestResult::discard()};
+            fn to_pnt(center: (f64, f64, f64), radius: f64, angle_inputs: (f64, f64)) -> Point3D {
+                let domain_f64 = DOMAIN as f64;
+                let u = (angle_inputs.0 + domain_f64) / (2.0 * domain_f64); // transform to random variable on [0, 1]
+                let v = angle_inputs.1 / domain_f64; // transform to  random variable on [-1, 1]
+                let theta = 2.0 * consts::PI * u;
+                let phi = v.acos();
+                let x = center.0 + radius * theta.cos() * phi.sin();
+                let y = center.1 + radius * theta.sin() * phi.sin();
+                let z = center.2 + radius * phi.cos();
+                Point3D::new(x, y, z)
+            }
+            let p1 = to_pnt(center, radius, angle_inputs.0);
+            let p2 = to_pnt(center, radius, angle_inputs.1);
+            let p3 = to_pnt(center, radius, angle_inputs.2);
+            let p4 = to_pnt(center, radius, angle_inputs.3);
+            let p_center = Point3D::new(center.0, center.1, center.2);
+
+            let tetrahedron = Tetrahedron::new(p1, p2, p3, p4);
+
+            TestResult::from_bool(tetrahedron.in_circle_test(&p_center) == Some(InCircleLocation::Inside))
+        }
+        QuickCheck::new().gen(StdGen::new(rand::thread_rng(), DOMAIN)).quickcheck(
+            in_circle_2d_polyhedron_constructed_from_sphere as fn(center: (f64, f64, f64), radius: f64, angle_inputs: ((f64, f64), (f64, f64), (f64, f64), (f64, f64))) -> TestResult
+        )
     }
 
     #[test]
