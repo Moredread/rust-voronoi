@@ -228,17 +228,30 @@ mod tests {
         const DOMAIN: usize = 100;
         fn in_circle_2d_tetrahedron_constructed_from_sphere(center: (f64, f64, f64), radius: f64, angle_inputs: ((f64, f64), (f64, f64), (f64, f64), (f64, f64))) -> TestResult {
             if radius <= 0.0 { return TestResult::discard()};
+
+            /// Generate a point on the sphere given by the "spherical" input coordinates.
+            /// angle_inputs should be on the interval [-DOMAIN, DOMAIN], as converting to real
+            /// spherical coordinates is also done by this function.
+            /// See e.g. http://mathworld.wolfram.com/SpherePointPicking.html how uniform sampling
+            /// on a sphere works.
             fn to_pnt(center: (f64, f64, f64), radius: f64, angle_inputs: (f64, f64)) -> Point3D {
                 let domain_f64 = DOMAIN as f64;
-                let u = 0.5 * (angle_inputs.0 / domain_f64 + 1.0); // transform to random variable on [0, 1]
-                let v = angle_inputs.1 / domain_f64; // transform to random variable on [-1, 1]
+
+                // Transform input to random variable on [0, 1]
+                let u = 0.5 * (angle_inputs.0 / domain_f64 + 1.0);
+                // Transform other input to random variable on [-1, 1]
+                let v = angle_inputs.1 / domain_f64;
+
                 let theta = 2.0 * consts::PI * u;
                 let phi = v.acos();
+
                 let x = center.0 + radius * theta.cos() * phi.sin();
                 let y = center.1 + radius * theta.sin() * phi.sin();
                 let z = center.2 + radius * phi.cos();
+
                 Point3D::new(x, y, z)
             }
+
             let p1 = to_pnt(center, radius, angle_inputs.0);
             let p2 = to_pnt(center, radius, angle_inputs.1);
             let p3 = to_pnt(center, radius, angle_inputs.2);
