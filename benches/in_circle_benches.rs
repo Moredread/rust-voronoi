@@ -6,7 +6,8 @@ extern crate voronoi;
 #[cfg(test)]
 mod tests {
     use test::{Bencher, black_box};
-    use voronoi::in_circle::{Triangle, Point2D, InCircleTestable};
+    use voronoi::in_circle::*;
+    use voronoi::geometry::*;
 
     #[bench]
     fn bench_triangle_in_circle_test(b: &mut Bencher) {

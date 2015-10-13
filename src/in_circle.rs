@@ -1,35 +1,10 @@
+use geometry::*;
+
 use libc::{c_double, c_void};
 use std::cmp::{Ordering};
 use std::sync::{Once, ONCE_INIT};
 
 static EXACTINIT: Once = ONCE_INIT;
-
-#[repr(C)]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Point2D {
-    x: c_double,
-    y: c_double,
-}
-
-impl Point2D {
-    pub fn new(x: c_double, y: c_double) -> Point2D {
-        Point2D { x: x, y: y }
-    }
-}
-
-#[repr(C)]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Point3D {
-    x: c_double,
-    y: c_double,
-    z: c_double,
-}
-
-impl Point3D {
-    pub fn new(x: c_double, y: c_double, z: c_double) -> Point3D {
-        Point3D { x: x, y: y, z: z }
-    }
-}
 
 #[link(name = "predicates")]
 extern "C" {
@@ -74,42 +49,6 @@ pub trait InCircleTestable<P> {
 
 pub trait Orientable {
     fn orientation(&self) -> Option<Orientation>;
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Triangle<P> {
-    p1: P,
-    p2: P,
-    p3: P,
-}
-
-impl<P> Triangle<P> {
-    pub fn new(p1: P, p2: P, p3: P) -> Triangle<P> {
-        Triangle {
-            p1: p1,
-            p2: p2,
-            p3: p3,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Tetrahedron<P> {
-    p1: P,
-    p2: P,
-    p3: P,
-    p4: P,
-}
-
-impl<P> Tetrahedron<P> {
-    pub fn new(p1: P, p2: P, p3: P, p4: P) -> Tetrahedron<P> {
-        Tetrahedron {
-            p1: p1,
-            p2: p2,
-            p3: p3,
-            p4: p4,
-        }
-    }
 }
 
 fn det_to_in_circle_location(det: f64) -> Option<InCircleLocation> {
@@ -182,6 +121,7 @@ impl InCircleTestable<Point3D> for Tetrahedron<Point3D> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use geometry::*;
 
     use std::f64;
     use std::f64::consts;
