@@ -28,6 +28,25 @@ mod tests {
     }
 
     #[bench]
+    fn bench_tetrahedron_in_circle_test(b: &mut Bencher) {
+        let t = Tetrahedron::new(
+            Point3D::new(1.0, 0.0, 0.0),
+            Point3D::new(0.0, 1.0, 0.0),
+            Point3D::new(0.0, 0.0, 1.0),
+            Point3D::new(0.0, 0.0, 0.0),
+        );
+
+        let test_point = Point3D::new(0.0, 0.0, 0.0);
+
+        b.iter(|| {
+            let t_box = black_box(&t);
+            let test_box = black_box(&test_point);
+
+            t_box.in_circle_test(test_box)
+        });
+    }
+
+    #[bench]
     fn bench_triangle_point_location_test(b: &mut Bencher) {
         let t = Triangle::new(
             Point2D::new(0.0, 0.0),
