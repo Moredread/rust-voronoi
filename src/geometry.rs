@@ -28,6 +28,21 @@ impl Point3D {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Vertex<P> {
+    pub p1: P,
+    pub p2: P,
+}
+
+impl<P> Vertex<P> {
+    pub fn new(p1: P, p2: P) -> Vertex<P> {
+        Vertex {
+            p1: p1,
+            p2: p2,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Triangle<P> {
     pub p1: P,
     pub p2: P,

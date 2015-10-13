@@ -118,6 +118,53 @@ fn det_to_orientation(det: f64) -> Option<Orientation> {
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub enum PointLocation {
+    Inside,
+    Outside,
+    On { v: Vertex<Point2D> }
+}
+
+impl Triangle<Point2D> {
+    pub fn locate(&self, p: &Point2D) -> Option<PointLocation> {
+        let orientation = match self.orientation() {
+            Some(o) => o,
+            None => { return None; },
+        };
+
+        // Fix orientation if needed
+        let t: Triangle<Point2D>  = if orientation == Orientation::Positive { *self } else { Triangle::new(self.p1, self.p3, self.p2) };
+
+        let t1 = Triangle::new(t.p1, t.p2, *p);
+        let t2 = Triangle::new(t.p2, t.p3, *p);
+        let t3 = Triangle::new(t.p3, t.p1, *p);
+
+        // If each triangle that is made out of p and two points of t is positivly oriented, p is inside.
+        let t1_orientation = match t1.orientation() {
+            Some(o) => o,
+            None => return Some(PointLocation::On { v: Vertex::new(t.p1, t.p2) }),
+        };
+
+        let t2_orientation = match t2.orientation() {
+            Some(o) => o,
+            None => return Some(PointLocation::On { v: Vertex::new(t.p2, t.p3) }),
+        };
+
+        let t3_orientation = match t3.orientation() {
+            Some(o) => o,
+            None => return Some(PointLocation::On { v: Vertex::new(t.p3, t.p1) }),
+        };
+
+        if t1_orientation == Orientation::Positive &&
+           t2_orientation == Orientation::Positive &&
+           t3_orientation == Orientation::Positive {
+               return Some(PointLocation::Inside);
+           } else {
+               return Some(PointLocation::Outside);
+           }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -127,6 +174,27 @@ mod tests {
     use std::f64::consts;
     use rand;
     use quickcheck::{TestResult, quickcheck, QuickCheck, StdGen};
+
+    #[test]
+    fn triangle_point_location() {
+        let p1 = Point2D::new(0.0, 0.0);
+        let p2 = Point2D::new(0.0, 10.0);
+        let p3 = Point2D::new(10.0, 0.0);
+        let d_inside = Point2D::new(2.0, 2.0);
+        let d_outside = Point2D::new(20.0, 20.0);
+        let d_on = Point2D::new(5.0, 5.0);
+
+        let t_pos = Triangle::new(p1, p2, p3);
+        let t_neg = Triangle::new(p2, p1, p3);
+
+        assert_eq!(t_pos.locate(&d_inside), Some(PointLocation::Inside));
+        assert_eq!(t_pos.locate(&d_outside), Some(PointLocation::Outside));
+        assert_eq!(t_pos.locate(&d_on), Some(PointLocation::On { v: Vertex::new(p2, p3) }));
+
+        assert_eq!(t_neg.locate(&d_inside), Some(PointLocation::Inside));
+        assert_eq!(t_neg.locate(&d_outside), Some(PointLocation::Outside));
+        assert_eq!(t_neg.locate(&d_on), Some(PointLocation::On { v: Vertex::new(p2, p3) }));
+    }
 
     #[test]
     fn in_circle_2d() {

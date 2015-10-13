@@ -26,4 +26,22 @@ mod tests {
             t_box.in_circle_test(test_box)
         });
     }
+
+    #[bench]
+    fn bench_triangle_point_location_test(b: &mut Bencher) {
+        let t = Triangle::new(
+            Point2D::new(0.0, 0.0),
+            Point2D::new(0.0, 10.0),
+            Point2D::new(10.0, 1.0),
+        );
+
+        let test_point = Point2D::new(2.0, 2.0);
+
+        b.iter(|| {
+            let t_box = black_box(&t);
+            let test_box = black_box(&test_point);
+
+            t_box.locate(test_box)
+        });
+    }
 }
