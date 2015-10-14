@@ -119,14 +119,21 @@ fn det_to_orientation(det: f64) -> Option<Orientation> {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum PointLocation {
+pub enum TrianglePointLocation {
     Inside,
     Outside,
     On { v: Vertex<Point2D> }
 }
 
+#[derive(Debug, PartialEq)]
+pub enum TetrahedronPointLocation {
+    Inside,
+    Outside,
+    On { v: Triangle<Point3D> }
+}
+
 impl Triangle<Point2D> {
-    pub fn locate(&self, p: &Point2D) -> Option<PointLocation> {
+    pub fn locate(&self, p: &Point2D) -> Option<TrianglePointLocation> {
         let orientation = match self.orientation() {
             Some(o) => o,
             None => { return None; },
@@ -142,25 +149,72 @@ impl Triangle<Point2D> {
         // If each triangle that is made out of p and two points of t is positivly oriented, p is inside.
         let t1_orientation = match t1.orientation() {
             Some(o) => o,
-            None => return Some(PointLocation::On { v: Vertex::new(t.p1, t.p2) }),
+            None => return Some(TrianglePointLocation::On { v: Vertex::new(t.p1, t.p2) }),
         };
 
         let t2_orientation = match t2.orientation() {
             Some(o) => o,
-            None => return Some(PointLocation::On { v: Vertex::new(t.p2, t.p3) }),
+            None => return Some(TrianglePointLocation::On { v: Vertex::new(t.p2, t.p3) }),
         };
 
         let t3_orientation = match t3.orientation() {
             Some(o) => o,
-            None => return Some(PointLocation::On { v: Vertex::new(t.p3, t.p1) }),
+            None => return Some(TrianglePointLocation::On { v: Vertex::new(t.p3, t.p1) }),
         };
 
         if t1_orientation == Orientation::Positive &&
            t2_orientation == Orientation::Positive &&
            t3_orientation == Orientation::Positive {
-               return Some(PointLocation::Inside);
+               return Some(TrianglePointLocation::Inside);
            } else {
-               return Some(PointLocation::Outside);
+               return Some(TrianglePointLocation::Outside);
+           }
+    }
+}
+
+impl Tetrahedron<Point3D> {
+    pub fn locate(&self, p: &Point3D) -> Option<TetrahedronPointLocation> {
+        let orientation = match self.orientation() {
+            Some(o) => o,
+            None => { return None; },
+        };
+
+        // Fix orientation if needed
+        let t: Tetrahedron<Point3D>  = if orientation == Orientation::Positive { *self } else { Tetrahedron::new(self.p1, self.p2, self.p4, self.p3) };
+
+        let t1 = Tetrahedron::new(t.p1, t.p2, t.p3, *p);
+        let t2 = Tetrahedron::new(t.p2, t.p4, t.p3, *p);
+        let t3 = Tetrahedron::new(t.p3, t.p4, t.p1, *p);
+        let t4 = Tetrahedron::new(t.p4, t.p2, t.p1, *p);
+
+        // If each triangle that is made out of p and two points of t is positivly oriented, p is inside.
+        let t1_orientation = match t1.orientation() {
+            Some(o) => o,
+            None => return Some(TetrahedronPointLocation::On { v: Triangle::new(t.p1, t.p2, t.p3) }),
+        };
+
+        let t2_orientation = match t2.orientation() {
+            Some(o) => o,
+            None => return Some(TetrahedronPointLocation::On { v: Triangle::new(t.p2, t.p4, t.p3) }),
+        };
+
+        let t3_orientation = match t3.orientation() {
+            Some(o) => o,
+            None => return Some(TetrahedronPointLocation::On { v: Triangle::new(t.p3, t.p4, t.p1) }),
+        };
+
+        let t4_orientation = match t4.orientation() {
+            Some(o) => o,
+            None => return Some(TetrahedronPointLocation::On { v: Triangle::new(t.p4, t.p2, t.p1) }),
+        };
+
+        if t1_orientation == Orientation::Positive &&
+           t2_orientation == Orientation::Positive &&
+           t3_orientation == Orientation::Positive &&
+           t4_orientation == Orientation::Positive {
+               return Some(TetrahedronPointLocation::Inside);
+           } else {
+               return Some(TetrahedronPointLocation::Outside);
            }
     }
 }
@@ -187,13 +241,35 @@ mod tests {
         let t_pos = Triangle::new(p1, p2, p3);
         let t_neg = Triangle::new(p2, p1, p3);
 
-        assert_eq!(t_pos.locate(&d_inside), Some(PointLocation::Inside));
-        assert_eq!(t_pos.locate(&d_outside), Some(PointLocation::Outside));
-        assert_eq!(t_pos.locate(&d_on), Some(PointLocation::On { v: Vertex::new(p2, p3) }));
+        assert_eq!(t_pos.locate(&d_inside), Some(TrianglePointLocation::Inside));
+        assert_eq!(t_pos.locate(&d_outside), Some(TrianglePointLocation::Outside));
+        assert_eq!(t_pos.locate(&d_on), Some(TrianglePointLocation::On { v: Vertex::new(p2, p3) }));
 
-        assert_eq!(t_neg.locate(&d_inside), Some(PointLocation::Inside));
-        assert_eq!(t_neg.locate(&d_outside), Some(PointLocation::Outside));
-        assert_eq!(t_neg.locate(&d_on), Some(PointLocation::On { v: Vertex::new(p2, p3) }));
+        assert_eq!(t_neg.locate(&d_inside), Some(TrianglePointLocation::Inside));
+        assert_eq!(t_neg.locate(&d_outside), Some(TrianglePointLocation::Outside));
+        assert_eq!(t_neg.locate(&d_on), Some(TrianglePointLocation::On { v: Vertex::new(p2, p3) }));
+    }
+
+    #[test]
+    fn tetrahedron_point_location() {
+        let p1 = Point3D::new(0.0, 0.0, 0.0);
+        let p2 = Point3D::new(10.0, 0.0, 0.0);
+        let p3 = Point3D::new(0.0, 10.0, 0.0);
+        let p4 = Point3D::new(0.0, 0.0, 10.0);
+        let d_inside = Point3D::new(1.0, 1.0, 1.0);
+        let d_outside = Point3D::new(20.0, 20.0, 20.0);
+        let d_on = Point3D::new(2.0, 2.0, 0.0);
+
+        let t_neg = Tetrahedron::new(p1, p2, p3, p4);
+        let t_pos = Tetrahedron::new(p2, p1, p3, p4);
+
+        assert_eq!(t_pos.locate(&d_inside), Some(TetrahedronPointLocation::Inside));
+        assert_eq!(t_pos.locate(&d_outside), Some(TetrahedronPointLocation::Outside));
+        assert_eq!(t_pos.locate(&d_on), Some(TetrahedronPointLocation::On { v: Triangle::new(p3, p1, p2) }));
+
+        assert_eq!(t_neg.locate(&d_inside), Some(TetrahedronPointLocation::Inside));
+        assert_eq!(t_neg.locate(&d_outside), Some(TetrahedronPointLocation::Outside));
+        assert_eq!(t_neg.locate(&d_on), Some(TetrahedronPointLocation::On { v: Triangle::new(p1, p2, p3) }));
     }
 
     #[test]
