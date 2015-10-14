@@ -142,33 +142,27 @@ impl Triangle<Point2D> {
         // Fix orientation if needed
         let t: Triangle<Point2D>  = if orientation == Orientation::Positive { *self } else { Triangle::new(self.p1, self.p3, self.p2) };
 
-        let t1 = Triangle::new(t.p1, t.p2, *p);
-        let t2 = Triangle::new(t.p2, t.p3, *p);
-        let t3 = Triangle::new(t.p3, t.p1, *p);
+        let edges = [(t.p1, t.p2),
+                    (t.p2, t.p3),
+                    (t.p3, t.p1),
+                       ];
 
-        // If each triangle that is made out of p and two points of t is positivly oriented, p is inside.
-        let t1_orientation = match t1.orientation() {
-            Some(o) => o,
-            None => return Some(TrianglePointLocation::On { v: Vertex::new(t.p1, t.p2) }),
+        let orientations = edges.iter().map( |&(p1, p2)| {
+           let t = Triangle::new(p1, p2, *p);
+           ((p1, p2), t.orientation())
+        }).collect::<Vec<((_,_), _)>>();
+
+        if orientations.iter().all( |&((_,_), ref o)| *o == Some(Orientation::Positive)) {
+           return Some(TrianglePointLocation::Inside);
         };
 
-        let t2_orientation = match t2.orientation() {
-            Some(o) => o,
-            None => return Some(TrianglePointLocation::On { v: Vertex::new(t.p2, t.p3) }),
+        if !orientations.iter().any( |&((_,_), ref o)| *o == None) {
+           return Some(TrianglePointLocation::Outside);
         };
 
-        let t3_orientation = match t3.orientation() {
-            Some(o) => o,
-            None => return Some(TrianglePointLocation::On { v: Vertex::new(t.p3, t.p1) }),
-        };
+        let (p1, p2) = orientations.iter().filter_map(|&((a, b), ref o)| if *o == None {Some((a, b))} else {None} ).next().unwrap();
 
-        if t1_orientation == Orientation::Positive &&
-           t2_orientation == Orientation::Positive &&
-           t3_orientation == Orientation::Positive {
-               return Some(TrianglePointLocation::Inside);
-           } else {
-               return Some(TrianglePointLocation::Outside);
-           }
+        return Some(TrianglePointLocation::On { v: Vertex::new(p1, p2) });
     }
 }
 
