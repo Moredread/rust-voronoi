@@ -182,40 +182,28 @@ impl Tetrahedron<Point3D> {
         // Fix orientation if needed
         let t: Tetrahedron<Point3D>  = if orientation == Orientation::Positive { *self } else { Tetrahedron::new(self.p1, self.p2, self.p4, self.p3) };
 
-        let t1 = Tetrahedron::new(t.p1, t.p2, t.p3, *p);
-        let t2 = Tetrahedron::new(t.p2, t.p4, t.p3, *p);
-        let t3 = Tetrahedron::new(t.p3, t.p4, t.p1, *p);
-        let t4 = Tetrahedron::new(t.p4, t.p2, t.p1, *p);
+        let triangles = [(t.p1, t.p2, t.p3),
+                         (t.p2, t.p4, t.p3),
+                         (t.p3, t.p4, t.p1),
+                         (t.p4, t.p2, t.p1),
+                        ];
 
-        // If each triangle that is made out of p and two points of t is positivly oriented, p is inside.
-        let t1_orientation = match t1.orientation() {
-            Some(o) => o,
-            None => return Some(TetrahedronPointLocation::On { v: Triangle::new(t.p1, t.p2, t.p3) }),
+        let orientations = triangles.iter().map( |&(p1, p2, p3)| {
+            let t = Tetrahedron::new(p1, p2, p3, *p);
+            ((p1, p2, p3), t.orientation())
+        }).collect::<Vec<((_,_,_), _)>>();
+
+        if orientations.iter().all( |&((_,_,_), ref o)| *o == Some(Orientation::Positive)) {
+            return Some(TetrahedronPointLocation::Inside);
         };
 
-        let t2_orientation = match t2.orientation() {
-            Some(o) => o,
-            None => return Some(TetrahedronPointLocation::On { v: Triangle::new(t.p2, t.p4, t.p3) }),
+        if !orientations.iter().any( |&((_,_,_), ref o)| *o == None) {
+            return Some(TetrahedronPointLocation::Outside);
         };
 
-        let t3_orientation = match t3.orientation() {
-            Some(o) => o,
-            None => return Some(TetrahedronPointLocation::On { v: Triangle::new(t.p3, t.p4, t.p1) }),
-        };
+        let (p1, p2, p3) = orientations.iter().filter_map(|&((a, b, c), ref o)| if *o == None {Some((a, b, c))} else {None} ).next().unwrap();
 
-        let t4_orientation = match t4.orientation() {
-            Some(o) => o,
-            None => return Some(TetrahedronPointLocation::On { v: Triangle::new(t.p4, t.p2, t.p1) }),
-        };
-
-        if t1_orientation == Orientation::Positive &&
-           t2_orientation == Orientation::Positive &&
-           t3_orientation == Orientation::Positive &&
-           t4_orientation == Orientation::Positive {
-               return Some(TetrahedronPointLocation::Inside);
-           } else {
-               return Some(TetrahedronPointLocation::Outside);
-           }
+        return Some(TetrahedronPointLocation::On { v: Triangle::new(p1, p2, p3) });
     }
 }
 
