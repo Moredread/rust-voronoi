@@ -271,7 +271,7 @@ mod tests {
     }
 
     #[test]
-    fn in_circle_2d_triangle_constructed_from_circle() {
+    fn in_circle_triangle_constructed_from_circle() {
         fn in_circle_2d_triangle_constructed_from_circle(center: (f64, f64), radius: f64, test_point_radius: f64, angles: (f64, f64, f64, f64)) -> TestResult {
             if radius <= 0.0 { return TestResult::discard()};
             if test_point_radius <= 0.0 { return TestResult::discard()};
@@ -300,7 +300,7 @@ mod tests {
     }
 
     #[test]
-    fn in_circle_2d_tetrahedron_constructed_from_sphere() {
+    fn in_circle_tetrahedron_constructed_from_sphere() {
         // Specify the range of number we want to check, as we have to map them to a different
         // interval below.
         const DOMAIN: usize = 100;
