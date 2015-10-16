@@ -28,14 +28,14 @@ impl Point3D {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Vertex<P> {
+pub struct Edge<P> {
     pub p1: P,
     pub p2: P,
 }
 
-impl<P> Vertex<P> {
-    pub fn new(p1: P, p2: P) -> Vertex<P> {
-        Vertex {
+impl<P> Edge<P> {
+    pub fn new(p1: P, p2: P) -> Edge<P> {
+        Edge {
             p1: p1,
             p2: p2,
         }
@@ -49,13 +49,17 @@ pub struct Triangle<P> {
     pub p3: P,
 }
 
-impl<P> Triangle<P> {
+impl<P: Copy> Triangle<P> {
     pub fn new(p1: P, p2: P, p3: P) -> Triangle<P> {
         Triangle {
             p1: p1,
             p2: p2,
             p3: p3,
         }
+    }
+
+    pub fn edges(&self) -> (Edge<P>, Edge<P>, Edge<P>)  {
+        (Edge::new(self.p1, self.p2), Edge::new(self.p2, self.p3), Edge::new(self.p3, self.p1))
     }
 }
 
@@ -75,5 +79,28 @@ impl<P> Tetrahedron<P> {
             p3: p3,
             p4: p4,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quickcheck::{TestResult, quickcheck};
+
+    #[test]
+    fn triangle_edges_test() {
+        fn triangle_edges_test(pnt1: (f64, f64), pnt2: (f64, f64), pnt3: (f64, f64)) -> TestResult {
+            let p1 = Point2D::new(pnt1.0, pnt1.1);
+            let p2 = Point2D::new(pnt2.0, pnt2.1);
+            let p3 = Point2D::new(pnt3.0, pnt3.1);
+
+            let t = Triangle::new(p1, p2, p3);
+            let (e1, e2, e3) = t.edges();
+
+            TestResult::from_bool(e1 == Edge::new(p1, p2) &&
+                                  e2 == Edge::new(p2, p3) &&
+                                  e3 == Edge::new(p3, p1) )
+        }
+        quickcheck(triangle_edges_test as fn(pnt1: (f64, f64), pnt2: (f64, f64), pnt3: (f64, f64)) -> TestResult)
     }
 }
