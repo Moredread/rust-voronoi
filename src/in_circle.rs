@@ -142,14 +142,9 @@ impl Triangle<Point2D> {
         // Fix orientation if needed
         let t: Triangle<Point2D>  = if orientation == Orientation::Positive { *self } else { Triangle::new(self.p1, self.p3, self.p2) };
 
-        let edges = [(t.p1, t.p2),
-                    (t.p2, t.p3),
-                    (t.p3, t.p1),
-                       ];
-
-        let orientations = edges.iter().map( |&(p1, p2)| {
-           let t = Triangle::new(p1, p2, *p);
-           ((p1, p2), t.orientation())
+        let orientations = t.edges().into_iter().map( |&edge| {
+           let t = Triangle::new(edge.p1, edge.p2, *p);
+           ((edge.p1, edge.p2), t.orientation())
         }).collect::<Vec<((_,_), _)>>();
 
         if orientations.iter().all( |&((_,_), ref o)| *o == Some(Orientation::Positive)) {

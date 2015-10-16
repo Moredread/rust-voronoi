@@ -58,8 +58,8 @@ impl<P: Copy> Triangle<P> {
         }
     }
 
-    pub fn edges(&self) -> (Edge<P>, Edge<P>, Edge<P>)  {
-        (Edge::new(self.p1, self.p2), Edge::new(self.p2, self.p3), Edge::new(self.p3, self.p1))
+    pub fn edges(&self) -> [Edge<P>; 3] {
+        [Edge::new(self.p1, self.p2), Edge::new(self.p2, self.p3), Edge::new(self.p3, self.p1)]
     }
 }
 
@@ -95,11 +95,11 @@ mod tests {
             let p3 = Point2D::new(pnt3.0, pnt3.1);
 
             let t = Triangle::new(p1, p2, p3);
-            let (e1, e2, e3) = t.edges();
+            let edges = t.edges();
 
-            TestResult::from_bool(e1 == Edge::new(p1, p2) &&
-                                  e2 == Edge::new(p2, p3) &&
-                                  e3 == Edge::new(p3, p1) )
+            TestResult::from_bool(edges[0] == Edge::new(p1, p2) &&
+                                  edges[1] == Edge::new(p2, p3) &&
+                                  edges[2] == Edge::new(p3, p1) )
         }
         quickcheck(triangle_edges_test as fn(pnt1: (f64, f64), pnt2: (f64, f64), pnt3: (f64, f64)) -> TestResult)
     }
