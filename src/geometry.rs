@@ -1,5 +1,9 @@
 use libc::c_double;
 
+pub trait Area<P> {
+    fn area(&self) -> P;
+}
+
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point2D {
@@ -63,6 +67,13 @@ impl<P: Copy> Triangle<P> {
     }
 }
 
+impl Area<f64> for Triangle<Point2D> {
+    fn area(&self) -> f64 {
+        return 0.5 * ((self.p1.x - self.p3.x) * (self.p2.y - self.p1.y) -
+                      (self.p1.x - self.p2.x) * (self.p3.y - self.p1.y)).abs();
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Tetrahedron<P> {
     pub p1: P,
@@ -103,4 +114,15 @@ mod tests {
         }
         quickcheck(triangle_edges_test as fn(pnt1: (f64, f64), pnt2: (f64, f64), pnt3: (f64, f64)) -> TestResult)
     }
+
+   #[test]
+   fn triangle_area_test() {
+       let p1 = Point2D::new(0.0, 0.0);
+       let p2 = Point2D::new(1.0, 0.0);
+       let p3 = Point2D::new(0.4, 2.0);
+
+       let t = Triangle::new(p1, p2, p3);
+
+       assert_eq!(t.area(), 1.0)
+   }
 }
