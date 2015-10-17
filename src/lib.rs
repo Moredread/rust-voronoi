@@ -8,3 +8,4 @@ pub use geometry::*;
 
 pub mod in_circle;
 pub mod geometry;
+pub mod delaunay;
