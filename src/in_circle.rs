@@ -45,14 +45,14 @@ impl InCircleTestable<Point2D> for Triangle<Point2D> {
     fn in_circle_test(&self, point: &Point2D) -> Option<InCircleLocation> {
         init_predicates();
 
-        let orienation_multiplier: f64 = match self.orientation() {
+        let orientation_multiplier: f64 = match self.orientation() {
             Some(p) => { p.to_f64_multiplier() },
             None => { return None; }
         };
 
         let incircle_det = unsafe { incircle(&self.p1, &self.p2, &self.p3, point) };
 
-        det_to_in_circle_location(orienation_multiplier * incircle_det)
+        det_to_in_circle_location(orientation_multiplier * incircle_det)
     }
 }
 
@@ -60,14 +60,14 @@ impl InCircleTestable<Point3D> for Tetrahedron<Point3D> {
     fn in_circle_test(&self, point: &Point3D) -> Option<InCircleLocation> {
         init_predicates();
 
-        let orienation_multiplier: f64 = match self.orientation() {
+        let orientation_multiplier: f64 = match self.orientation() {
             Some(p) => { p.to_f64_multiplier() },
             None => { return None; }
         };
 
         let incircle_det = unsafe { insphere(&self.p1, &self.p2, &self.p3, &self.p4, point) };
 
-        det_to_in_circle_location(orienation_multiplier * incircle_det)
+        det_to_in_circle_location(orientation_multiplier * incircle_det)
     }
 }
 
