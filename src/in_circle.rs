@@ -122,7 +122,7 @@ fn det_to_orientation(det: f64) -> Option<Orientation> {
 pub enum TrianglePointLocation {
     Inside,
     Outside,
-    On { v: Edge<Point2D> }
+    OnEdge { v: Edge<Point2D> }
 }
 
 #[derive(Debug, PartialEq)]
@@ -157,7 +157,7 @@ impl Triangle<Point2D> {
 
         let (p1, p2) = orientations.iter().filter_map(|&((a, b), ref o)| if *o == None {Some((a, b))} else {None} ).next().unwrap();
 
-        return Some(TrianglePointLocation::On { v: Edge::new(p1, p2) });
+        return Some(TrianglePointLocation::OnEdge { v: Edge::new(p1, p2) });
     }
 }
 
@@ -220,11 +220,11 @@ mod tests {
 
         assert_eq!(t_pos.locate(&d_inside), Some(TrianglePointLocation::Inside));
         assert_eq!(t_pos.locate(&d_outside), Some(TrianglePointLocation::Outside));
-        assert_eq!(t_pos.locate(&d_on), Some(TrianglePointLocation::On { v: Edge::new(p2, p3) }));
+        assert_eq!(t_pos.locate(&d_on), Some(TrianglePointLocation::OnEdge { v: Edge::new(p2, p3) }));
 
         assert_eq!(t_neg.locate(&d_inside), Some(TrianglePointLocation::Inside));
         assert_eq!(t_neg.locate(&d_outside), Some(TrianglePointLocation::Outside));
-        assert_eq!(t_neg.locate(&d_on), Some(TrianglePointLocation::On { v: Edge::new(p2, p3) }));
+        assert_eq!(t_neg.locate(&d_on), Some(TrianglePointLocation::OnEdge { v: Edge::new(p2, p3) }));
     }
 
     #[test]
