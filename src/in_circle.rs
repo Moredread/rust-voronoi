@@ -119,21 +119,22 @@ fn det_to_orientation(det: f64) -> Option<Orientation> {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum TrianglePointLocation {
+pub enum TrianglePointLocation<P> {
     Inside,
     Outside,
-    OnEdge { v: Edge<Point2D> }
+    OnEdge { v: Edge<P> }
 }
 
 #[derive(Debug, PartialEq)]
-pub enum TetrahedronPointLocation {
+pub enum TetrahedronPointLocation<P> {
     Inside,
     Outside,
-    OnFace { v: Triangle<Point3D> }
+    OnFace { v: Triangle<P> },
+    OnEdge { v: Edge<P> }
 }
 
 impl Triangle<Point2D> {
-    pub fn locate(&self, p: &Point2D) -> Option<TrianglePointLocation> {
+    pub fn locate(&self, p: &Point2D) -> Option<TrianglePointLocation<Point2D>> {
         let orientation = match self.orientation() {
             Some(o) => o,
             None => { return None; },
@@ -162,7 +163,7 @@ impl Triangle<Point2D> {
 }
 
 impl Tetrahedron<Point3D> {
-    pub fn locate(&self, p: &Point3D) -> Option<TetrahedronPointLocation> {
+    pub fn locate(&self, p: &Point3D) -> Option<TetrahedronPointLocation<Point3D>> {
         let orientation = match self.orientation() {
             Some(o) => o,
             None => { return None; },
