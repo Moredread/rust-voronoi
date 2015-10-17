@@ -129,7 +129,7 @@ pub enum TrianglePointLocation {
 pub enum TetrahedronPointLocation {
     Inside,
     Outside,
-    On { v: Triangle<Point3D> }
+    OnFace { v: Triangle<Point3D> }
 }
 
 impl Triangle<Point2D> {
@@ -192,7 +192,7 @@ impl Tetrahedron<Point3D> {
 
         let (p1, p2, p3) = orientations.iter().filter_map(|&((a, b, c), ref o)| if *o == None {Some((a, b, c))} else {None} ).next().unwrap();
 
-        return Some(TetrahedronPointLocation::On { v: Triangle::new(p1, p2, p3) });
+        return Some(TetrahedronPointLocation::OnFace { v: Triangle::new(p1, p2, p3) });
     }
 }
 
@@ -242,11 +242,11 @@ mod tests {
 
         assert_eq!(t_pos.locate(&d_inside), Some(TetrahedronPointLocation::Inside));
         assert_eq!(t_pos.locate(&d_outside), Some(TetrahedronPointLocation::Outside));
-        assert_eq!(t_pos.locate(&d_on), Some(TetrahedronPointLocation::On { v: Triangle::new(p3, p1, p2) }));
+        assert_eq!(t_pos.locate(&d_on), Some(TetrahedronPointLocation::OnFace { v: Triangle::new(p3, p1, p2) }));
 
         assert_eq!(t_neg.locate(&d_inside), Some(TetrahedronPointLocation::Inside));
         assert_eq!(t_neg.locate(&d_outside), Some(TetrahedronPointLocation::Outside));
-        assert_eq!(t_neg.locate(&d_on), Some(TetrahedronPointLocation::On { v: Triangle::new(p1, p2, p3) }));
+        assert_eq!(t_neg.locate(&d_on), Some(TetrahedronPointLocation::OnFace { v: Triangle::new(p1, p2, p3) }));
     }
 
     #[test]
