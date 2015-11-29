@@ -6,15 +6,21 @@ pub struct Delaunay<P> {
     domain: Triangle<P>
 }
 
-impl<P> Delaunay<P> where
-   Triangle<P>: Clone
-    {
-    pub fn new(t: Triangle<P>) -> Option<Delaunay<P>> {
-        Some(Delaunay { triangles: vec!(t.clone()), domain: t.clone()})
-    }
+trait Triangulation<P> {
+    fn triangles(&self) -> Vec<Triangle<P>>;
+}
 
-    pub fn triangulation(&self) -> Vec<Triangle<P>> {
+impl<P> Triangulation<P> for Delaunay<P> where
+   Triangle<P>: Clone {
+    fn triangles(&self) -> Vec<Triangle<P>> {
         self.triangles.clone()
+    }
+}
+
+impl<P> Delaunay<P> where
+   Triangle<P>: Clone {
+    pub fn new(t: Triangle<P>) -> Option<Delaunay<P>> {
+        Some(Delaunay { triangles: vec!(t.clone()), domain: t.clone() })
     }
 
     pub fn domain(&self) -> Triangle<P> {
@@ -27,6 +33,8 @@ mod tests {
     use super::*;
     use geometry::*;
     use in_circle::*;
+
+    use delaunay::Triangulation;
 
     use quickcheck::{TestResult, quickcheck, QuickCheck, StdGen};
 
@@ -41,7 +49,7 @@ mod tests {
             let d = Delaunay::new(t).unwrap();
 
             TestResult::from_bool( d.domain() == t &&
-                                   d.triangulation() == vec!(t) )
+                                   d.triangles() == vec!(t) )
         }
         quickcheck(new_delaunay_test as fn(pnt1: (f64, f64), pnt2: (f64, f64), pnt3: (f64, f64)) -> TestResult)
     }
