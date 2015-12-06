@@ -18,9 +18,13 @@ addons:
 
 sudo: false
 
+cache:
+  directories:
+    - $HOME/.ccache
+
 before_script:
   - pip install 'travis-cargo<0.2' --user
-  - export PATH=$HOME/.local/bin:/Users/travis/Library/Python/2.7/bin:$PATH
+  - export PATH=/usr/lib/ccache:$HOME/.local/bin:/Users/travis/Library/Python/2.7/bin:$PATH
 
 script:
     - rustc --version
@@ -32,6 +36,7 @@ script:
 
 after_success:
     - if [ ${TRAVIS_OS_NAME} != "osx" ]; then travis-cargo coveralls --no-sudo; fi
+    - type ccache >/dev/null 2>&1 && ccache -s
 
 env:
   global:
