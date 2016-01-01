@@ -33,12 +33,11 @@ pub trait InCircleTestable<P> {
 }
 
 fn det_to_in_circle_location(det: f64) -> Option<InCircleLocation> {
-    match 0.0.partial_cmp(&det) {
-        Some(Ordering::Greater) => { Some(InCircleLocation::Inside) }
-        Some(Ordering::Less) => { Some(InCircleLocation::Outside) }
-        Some(Ordering::Equal) => { Some(InCircleLocation::On) }
-        None => { None }
-    }
+    0.0.partial_cmp(&det).map(|ordering| match ordering {
+        Ordering::Greater => InCircleLocation::Inside,
+        Ordering::Less => InCircleLocation::Outside,
+        Ordering::Equal => InCircleLocation::On,
+    })
 }
 
 impl InCircleTestable<Point2D> for Triangle<Point2D> {
