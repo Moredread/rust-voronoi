@@ -121,15 +121,15 @@ fn det_to_orientation(det: f64) -> Option<Orientation> {
 pub enum TrianglePointLocation<P> {
     Inside,
     Outside,
-    OnEdge { v: Edge<P> }
+    OnEdge(Edge<P>)
 }
 
 #[derive(Debug, PartialEq)]
 pub enum TetrahedronPointLocation<P> {
     Inside,
     Outside,
-    OnFace { v: Triangle<P> },
-    OnEdge { v: Edge<P> }
+    OnFace(Triangle<P>),
+    OnEdge(Edge<P>)
 }
 
 impl Triangle<Point2D> {
@@ -157,7 +157,7 @@ impl Triangle<Point2D> {
 
         let (p1, p2) = orientations.iter().filter_map(|&((a, b), ref o)| if *o == None {Some((a, b))} else {None} ).next().unwrap();
 
-        return Some(TrianglePointLocation::OnEdge { v: Edge::new(p1, p2) });
+        return Some(TrianglePointLocation::OnEdge(Edge::new(p1, p2)));
     }
 }
 
@@ -192,7 +192,7 @@ impl Tetrahedron<Point3D> {
 
         let (p1, p2, p3) = orientations.iter().filter_map(|&((a, b, c), ref o)| if *o == None {Some((a, b, c))} else {None} ).next().unwrap();
 
-        return Some(TetrahedronPointLocation::OnFace { v: Triangle::new(p1, p2, p3) });
+        return Some(TetrahedronPointLocation::OnFace(Triangle::new(p1, p2, p3)));
     }
 }
 
@@ -220,11 +220,11 @@ mod tests {
 
         assert_eq!(t_pos.locate(&d_inside), Some(TrianglePointLocation::Inside));
         assert_eq!(t_pos.locate(&d_outside), Some(TrianglePointLocation::Outside));
-        assert_eq!(t_pos.locate(&d_on), Some(TrianglePointLocation::OnEdge { v: Edge::new(p2, p3) }));
+        assert_eq!(t_pos.locate(&d_on), Some(TrianglePointLocation::OnEdge(Edge::new(p2, p3))));
 
         assert_eq!(t_neg.locate(&d_inside), Some(TrianglePointLocation::Inside));
         assert_eq!(t_neg.locate(&d_outside), Some(TrianglePointLocation::Outside));
-        assert_eq!(t_neg.locate(&d_on), Some(TrianglePointLocation::OnEdge { v: Edge::new(p2, p3) }));
+        assert_eq!(t_neg.locate(&d_on), Some(TrianglePointLocation::OnEdge(Edge::new(p2, p3))));
     }
 
     #[test]
@@ -242,11 +242,11 @@ mod tests {
 
         assert_eq!(t_pos.locate(&d_inside), Some(TetrahedronPointLocation::Inside));
         assert_eq!(t_pos.locate(&d_outside), Some(TetrahedronPointLocation::Outside));
-        assert_eq!(t_pos.locate(&d_on), Some(TetrahedronPointLocation::OnFace { v: Triangle::new(p3, p1, p2) }));
+        assert_eq!(t_pos.locate(&d_on), Some(TetrahedronPointLocation::OnFace(Triangle::new(p3, p1, p2))));
 
         assert_eq!(t_neg.locate(&d_inside), Some(TetrahedronPointLocation::Inside));
         assert_eq!(t_neg.locate(&d_outside), Some(TetrahedronPointLocation::Outside));
-        assert_eq!(t_neg.locate(&d_on), Some(TetrahedronPointLocation::OnFace { v: Triangle::new(p1, p2, p3) }));
+        assert_eq!(t_neg.locate(&d_on), Some(TetrahedronPointLocation::OnFace(Triangle::new(p1, p2, p3))));
     }
 
     #[test]
