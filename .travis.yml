@@ -1,13 +1,13 @@
 language: rust
 
 rust:
-    - "nightly"
-    - "beta"
-    - "stable"
+  - "nightly"
+  - "beta"
+  - "stable"
 
 os:
-    - linux
-    - osx
+  - linux
+  - osx
 
 addons:
   apt:
@@ -22,21 +22,22 @@ cache:
   directories:
     - $HOME/.ccache
 
+cache: cargo
+
 before_script:
   - pip install 'travis-cargo<0.2' --user
   - export PATH=/usr/lib/ccache:$HOME/.local/bin:/Users/travis/Library/Python/2.7/bin:$PATH
 
 script:
-    - rustc --version
-    - cargo --version
-    - travis-cargo build
-    - travis-cargo test
-    - travis-cargo --only nightly bench
-    - travis-cargo --only stable doc
+  - rustc --version
+  - cargo --version
+  - travis-cargo build
+  - travis-cargo test
+  - travis-cargo --only nightly bench
+  - travis-cargo --only stable doc
 
-after_success:
-    - if [ ${TRAVIS_OS_NAME} != "osx" ]; then travis-cargo coveralls --no-sudo; fi
-    - type ccache >/dev/null 2>&1 && ccache -s
+  - if [ ${TRAVIS_OS_NAME} != "osx" ]; then travis-cargo coveralls --no-sudo; fi
+  - type ccache >/dev/null 2>&1 && ccache -s
 
 env:
   global:
