@@ -37,7 +37,7 @@ script:
   - travis-cargo --only stable doc
 
   - if [ ${TRAVIS_OS_NAME} != "osx" ]; then travis-cargo coveralls --no-sudo; fi; true
-  - type ccache >/dev/null 2>&1 && ccache -s
+  - if [ ${TRAVIS_OS_NAME} != "osx" ]; then type ccache >/dev/null 2>&1 && ccache -s; fi; true
 
 env:
   global:
