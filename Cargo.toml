@@ -9,7 +9,7 @@ libc = "*"
 clippy = {version = "*", optional = true}
 
 [dev-dependencies]
-quickcheck = "0.2"
+quickcheck = "0.4"
 rand = "0.3"
 
 [build-dependencies]
